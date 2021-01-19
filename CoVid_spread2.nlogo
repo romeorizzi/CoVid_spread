@@ -1,4 +1,4 @@
-globals [ %infectivity %infected]
+globals [ %infectivity %infected num_deaths num_infected mortality recovery_rate ]
 breed [people person]
 ;breed [visons vison]
 ;breed [bats bat]
@@ -7,6 +7,7 @@ people-own [
 state
 time_in_this_state
 sensitivity_to_get_ill
+%antibody
 ]
 
 
@@ -16,10 +17,18 @@ to saluta
    print "arrivedorci"
 end
 
+to get_infected
+    set state "infected"
+    set color red
+    set num_infected ( num_infected + 1 )
+end
+
 to setup
   clear-all
   reset-ticks
   set %infectivity  10
+  set mortality 1
+  set recovery_rate 10
 
   create-people num_people
   [
@@ -27,13 +36,14 @@ to setup
      set state "susceptible"
      set time_in_this_state 0
      set color yellow
+     set sensitivity_to_get_ill 50
+     set %antibody 50
      set mobility random 2
      set dev random 180
      setxy random-xcor random-ycor
   ]
   ask person 0 [
-    set state "infected"
-    set color red
+    get_infected
   ]
   set %infected (count people with [color = red] / count people) * 100
   write "You have restared your model"
@@ -46,9 +56,8 @@ to go
      forward mobility
   ]
   ask turtles [
-    set time_in_this_state (time_in_this_state +1)
+    set time_in_this_state ( time_in_this_state + 1 )
     if state = "dead" [
-      set num_deadths ( num_deadths +1 )
       die
     ]
     if state = "infected" [
@@ -62,11 +71,14 @@ to go
       ]
       if random 100 < mortality [
           set state "dead"
-          set time_in_this_state 0
           set color black
+          set num_deaths ( num_deaths + 1 )
+          set num_infected ( num_infected - 1 )
+          set time_in_this_state 0
       ]
       if state = "infected" and random 100 < time_in_this_state * recovery_rate
       [
+        set num_infected ( num_infected - 1 )
         ifelse random 100 < %antibody
         [
            set state "immune"
@@ -82,7 +94,7 @@ to go
   ]
   set %infected (count people with [color = red] / count people) * 100
   tick
-  if %infected = 100 [stop]
+  if num_infected = 0 [stop]
 end
 
 to-report random_bit?
