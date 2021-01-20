@@ -28,7 +28,7 @@ to setup
   reset-ticks
   set %infectivity  10
   set mortality 1
-  set recovery_rate 10
+  set recovery_rate 1
 
   create-people num_people
   [
@@ -36,7 +36,7 @@ to setup
      set state "susceptible"
      set time_in_this_state 0
      set color yellow
-     set sensitivity_to_get_ill 50
+     set sensitivity_to_get_ill 70
      set %antibody 50
      set mobility random 2
      set dev random 180
@@ -76,7 +76,7 @@ to go
           set num_infected ( num_infected - 1 )
           set time_in_this_state 0
       ]
-      if state = "infected" and random 100 < time_in_this_state * recovery_rate
+      if state = "infected" and random 1000 < time_in_this_state * recovery_rate
       [
         set num_infected ( num_infected - 1 )
         ifelse random 100 < %antibody
@@ -188,7 +188,7 @@ num_people
 num_people
 2
 500
-46.0
+218.0
 1
 1
 NIL
