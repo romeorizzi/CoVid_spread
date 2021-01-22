@@ -26,12 +26,13 @@ to get_infected [ version ]
 
     ifelse ((random 100) < 50)
        [ set last_vers (version + 1) ]
-       [ set last_vers (version) ]
+       [ set last_vers version ]
 end
 
 to transmit_infection [ version ]
      if last_vers < (version + 5) [
        get_infected version
+       ; print "Infected with version " + version + " "
      ]
 end
 
@@ -203,7 +204,7 @@ num_people
 num_people
 2
 2000
-285.0
+967.0
 1
 1
 NIL
@@ -236,7 +237,7 @@ SLIDER
 %infectivity
 0
 100
-36.5
+40.0
 0.5
 1
 NIL
@@ -251,7 +252,7 @@ mortality
 mortality
 0
 100
-2.0
+12.0
 1
 1
 NIL
@@ -296,7 +297,7 @@ born_rate
 born_rate
 0
 100
-7.0
+16.0
 1
 1
 NIL
@@ -338,6 +339,7 @@ true
 PENS
 "vers_1" 1.0 0 -16777216 true "" "plot count people with [last_vers = 1] "
 "vers_2" 1.0 0 -7500403 true "" "plot count people with [last_vers = 2] "
+"count" 1.0 0 -2674135 true "" "show count [last_vers] of people"
 
 @#$#@#$#@
 ## WHAT IS IT?
