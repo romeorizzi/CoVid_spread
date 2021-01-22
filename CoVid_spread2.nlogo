@@ -27,7 +27,7 @@ to setup
   clear-all
   reset-ticks
   set %infectivity  10
-  set mortality 1
+  set mortality 3
   set recovery_rate 1
 
   create-people num_people
@@ -67,16 +67,17 @@ to go
           set state "infected"
           set time_in_this_state 0
           set color red
+          set num_infected ( num_infected + 1 )
         ]
       ]
       if random 100 < mortality [
           set state "dead"
-          set color black
+          set color brown
           set num_deaths ( num_deaths + 1 )
           set num_infected ( num_infected - 1 )
           set time_in_this_state 0
       ]
-      if state = "infected" and random 1000 < time_in_this_state * recovery_rate
+      if state = "infected" and random 10000 < time_in_this_state * recovery_rate
       [
         set num_infected ( num_infected - 1 )
         ifelse random 100 < %antibody
@@ -102,13 +103,13 @@ to-report random_bit?
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
-10
-647
-448
+486
+17
+1058
+590
 -1
 -1
-13.0
+17.1
 1
 10
 1
@@ -129,10 +130,10 @@ ticks
 30.0
 
 BUTTON
-37
-58
-103
-91
+42
+48
+108
+81
 start
 setup
 NIL
@@ -146,10 +147,10 @@ NIL
 1
 
 BUTTON
-39
-123
-103
-156
+120
+48
+184
+81
 step
 go
 NIL
@@ -163,10 +164,10 @@ NIL
 1
 
 BUTTON
-59
-205
-122
-238
+197
+48
+260
+81
 run
 go
 T
@@ -180,37 +181,39 @@ NIL
 1
 
 SLIDER
-20
-288
-192
-321
+41
+113
+261
+146
 num_people
 num_people
 2
 500
-218.0
+359.0
 1
 1
 NIL
 HORIZONTAL
 
 PLOT
-747
-63
-947
-213
+1104
+30
+1635
+495
 disease spreading
 days
-% ill population
+NIL
 0.0
 10.0
 0.0
 10.0
 true
-false
+true
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot %infected"
+"%infected" 1.0 0 -817084 true "" "plot %infected"
+"num_deaths" 1.0 0 -6459832 true "" "plot num_deaths"
+"num_infected" 1.0 0 -2674135 true "" "plot num_infected"
 
 @#$#@#$#@
 ## WHAT IS IT?
