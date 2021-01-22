@@ -1,4 +1,4 @@
-globals [ %infectivity %infected num_deaths num_infected mortality recovery_rate ]
+globals [ %infected num_deaths num_infected ]
 breed [people person]
 ;breed [visons vison]
 ;breed [bats bat]
@@ -8,6 +8,8 @@ state
 time_in_this_state
 sensitivity_to_get_ill
 %antibody
+age
+last_vers
 ]
 
 
@@ -17,39 +19,54 @@ to saluta
    print "arrivedorci"
 end
 
-to get_infected
+to get_infected [ version ]
     set state "infected"
-    set color red
     set num_infected ( num_infected + 1 )
+    set color red + (version / 10)
+
+    ifelse ((random 100) < 50)
+       [ set last_vers (version + 1) ]
+       [ set last_vers (version) ]
 end
 
-to setup
-  clear-all
-  reset-ticks
-  set %infectivity  10
-  set mortality 3
-  set recovery_rate 1
+to transmit_infection [ version ]
+     if last_vers < (version + 5) [
+       get_infected version
+     ]
+end
 
-  create-people num_people
-  [
+to construct_person
      set shape "person"
      set state "susceptible"
      set time_in_this_state 0
      set color yellow
      set sensitivity_to_get_ill 70
      set %antibody 50
+     set age random 80
      set mobility random 2
      set dev random 180
+     set last_vers -5
      setxy random-xcor random-ycor
-  ]
+end
+
+to setup
+  clear-all
+  reset-ticks
+
+  create-people num_people [ construct_person ]
+
   ask person 0 [
-    get_infected
+    get_infected 1
   ]
+
   set %infected (count people with [color = red] / count people) * 100
   write "You have restared your model"
 end
 
 to go
+
+  create-people ( random born_rate ) [ construct_person ]
+
   ask people
   [
      rt random dev lt random dev
@@ -62,12 +79,9 @@ to go
     ]
     if state = "infected" [
       ask other turtles-here [
-        if state = "susceptible" and random 100 < sensitivity_to_get_ill * %infectivity
+        if (state = "susceptible" and random 100 < sensitivity_to_get_ill * %infectivity) ;or ( state = "immune" and time_in_this_state > imm_duration )
         [
-          set state "infected"
-          set time_in_this_state 0
-          set color red
-          set num_infected ( num_infected + 1 )
+          transmit_infection last_vers
         ]
       ]
       if random 100 < mortality [
@@ -95,7 +109,7 @@ to go
   ]
   set %infected (count people with [color = red] / count people) * 100
   tick
-  if num_infected = 0 [stop]
+  ;if num_infected = 0 [stop]
 end
 
 to-report random_bit?
@@ -188,8 +202,8 @@ SLIDER
 num_people
 num_people
 2
-500
-359.0
+2000
+285.0
 1
 1
 NIL
@@ -198,8 +212,8 @@ HORIZONTAL
 PLOT
 1104
 30
-1635
-495
+1627
+293
 disease spreading
 days
 NIL
@@ -211,9 +225,119 @@ true
 true
 "" ""
 PENS
-"%infected" 1.0 0 -817084 true "" "plot %infected"
 "num_deaths" 1.0 0 -6459832 true "" "plot num_deaths"
+
+SLIDER
+40
+177
+262
+210
+%infectivity
+%infectivity
+0
+100
+36.5
+0.5
+1
+NIL
+HORIZONTAL
+
+SLIDER
+40
+224
+261
+257
+mortality
+mortality
+0
+100
+2.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+39
+271
+260
+304
+recovery_rate
+recovery_rate
+0
+100
+8.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+38
+328
+260
+361
+imm_duration
+imm_duration
+0
+100
+30.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+55
+389
+227
+422
+born_rate
+born_rate
+0
+100
+7.0
+1
+1
+NIL
+HORIZONTAL
+
+PLOT
+1109
+310
+1625
+482
+plot 1
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+true
+"" ""
+PENS
 "num_infected" 1.0 0 -2674135 true "" "plot num_infected"
+
+PLOT
+1116
+504
+1623
+654
+plot 2
+NIL
+NIL
+0.0
+10.0
+0.0
+5.0
+true
+true
+"" ""
+PENS
+"vers_1" 1.0 0 -16777216 true "" "plot count people with [last_vers = 1] "
+"vers_2" 1.0 0 -7500403 true "" "plot count people with [last_vers = 2] "
 
 @#$#@#$#@
 ## WHAT IS IT?
